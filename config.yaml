@@ -1,7 +1,21 @@
 symbol: BTC/USDT
 timeframe: 5m
-exchange: binance           # any ccxt spot id works; futures id used for funding
-futures_exchange: binanceusdm
+
+# Ordered fallback lists. First one that responds wins.
+# Kraken/Coinbase/Bitstamp work from most Colab regions; Binance is blocked
+# from US-routed IPs (HTTP 451).
+exchanges:
+  - kraken
+  - coinbase
+  - bitstamp
+  - binance
+futures_exchanges:
+  - bybit
+  - binanceusdm
+# ccxt unified perp symbol used for funding rate (bybit + binanceusdm both
+# accept this form).
+futures_symbol: "BTC/USDT:USDT"
+
 loop_seconds: 60            # how often to evaluate signals
 ohlcv_limit: 300            # candles pulled per cycle
 orderbook_depth: 50

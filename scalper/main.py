@@ -118,7 +118,9 @@ def main():
     cfg = load_config(Path(args.config))
     logger, jsonl_path = setup_logging(ROOT / "logs")
 
-    market = MarketData(cfg["exchange"], cfg["futures_exchange"])
+    spot_ids = cfg.get("exchanges") or [cfg.get("exchange", "kraken")]
+    futures_ids = cfg.get("futures_exchanges") or [cfg.get("futures_exchange", "bybit")]
+    market = MarketData(spot_ids, futures_ids, cfg.get("futures_symbol"))
     news = NewsFeed(cfg["news"]["rss_url"], cfg["news"]["keywords"])
 
     logger.info("starting | symbol=%s tf=%s loop=%ss",
