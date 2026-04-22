@@ -1,0 +1,38 @@
+symbol: BTC/USDT
+timeframe: 5m
+exchange: binance           # any ccxt spot id works; futures id used for funding
+futures_exchange: binanceusdm
+loop_seconds: 60            # how often to evaluate signals
+ohlcv_limit: 300            # candles pulled per cycle
+orderbook_depth: 50
+trades_limit: 200
+
+# Signal weights (tune to taste). Each signal emits a score in [-1, +1].
+weights:
+  ema_trend: 1.0            # price vs EMA21/EMA50 stack
+  ema_cross: 0.8            # EMA9 / EMA21 cross
+  rsi: 0.6                  # oversold / overbought
+  macd: 0.8                 # MACD histogram flip
+  bollinger: 0.5            # reversion from bands
+  vwap: 0.7                 # reclaim / rejection of session VWAP
+  engulfing: 0.7            # bull/bear engulfing candle
+  book_imbalance: 0.8       # bid vs ask size ratio
+  trade_tape: 0.6           # aggressive buy vs sell volume
+  funding: 0.4              # funding extreme -> mean-revert bias
+  news: 0.6                 # aggregate headline sentiment
+
+# Score thresholds (absolute value)
+thresholds:
+  enter: 1.5                # |score| >= enter -> LONG / SHORT
+  strong: 3.0               # confidence tier
+
+# News
+news:
+  rss_url: https://cryptopanic.com/news/rss/
+  lookback_minutes: 60
+  keywords: [bitcoin, btc, crypto, sec, etf, fed, cpi, fomc, hack, ban]
+
+# Risk hints (printed alongside signal, not executed)
+risk:
+  atr_stop_mult: 1.0
+  atr_target_mult: 1.8
