@@ -29,6 +29,7 @@ class MarketData:
         self._futures_ids = _as_list(futures_ids)
         self._spot: ccxt.Exchange | None = None
         self._futures: ccxt.Exchange | None = None
+        self._futures_unavailable = False  # latch off after first full failure
         self.futures_symbol = futures_symbol
 
     @staticmethod
@@ -75,9 +76,16 @@ class MarketData:
         return self.spot.fetch_trades(symbol, limit=limit)
 
     def funding_rate(self, symbol: str) -> float | None:
+        if self._futures_unavailable:
+            return None
         sym = self.futures_symbol or symbol
         try:
             fr = self.futures.fetch_funding_rate(sym)
             return float(fr.get("fundingRate") or 0.0)
-        except Exception:
+        except Exception as exc:
+            if self._futures is None:
+                # All futures exchanges failed at init; latch off.
+                self._futures_unavailable = True
+                print(f"[data] funding rate disabled: {exc.__class__.__name__}",
+                      file=sys.stderr)
             return None

@@ -5,9 +5,13 @@ import time
 
 
 def book_imbalance(book: dict, depth: int = 20) -> float:
-    """Top-N bid size vs ask size. +1 = aggressive bids, -1 = aggressive asks."""
-    bids = sum(q for _, q in book.get("bids", [])[:depth])
-    asks = sum(q for _, q in book.get("asks", [])[:depth])
+    """Top-N bid size vs ask size. +1 = aggressive bids, -1 = aggressive asks.
+
+    Some exchanges (Kraken) return [price, amount, timestamp] entries instead
+    of [price, amount], so index by position rather than tuple-unpack.
+    """
+    bids = sum(float(entry[1]) for entry in book.get("bids", [])[:depth])
+    asks = sum(float(entry[1]) for entry in book.get("asks", [])[:depth])
     total = bids + asks
     if total <= 0:
         return 0.0
